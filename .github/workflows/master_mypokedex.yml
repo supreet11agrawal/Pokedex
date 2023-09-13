@@ -4,14 +4,15 @@
 name: Build, test, and Deploy ASP.Net Core app to Azure Web App - mypokedex
 
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
-    runs-on: windows-latest
+    # runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@master
@@ -20,23 +21,31 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.301'
-    
-    - name: Clean with dotnet
-      run: dotnet clean ./Pokedex.sln --configuration Release && dotnet nuget locals all --clear
-      
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
-    
-    - name: Unit Test with dotnet
-      run: dotnet test --configuration Release
 
-    - name: Publish with dotnet
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+    - name: Build
+      run: dotnet build ./Pokedex.sln --output buildOutput
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@3.1.0
       with:
-        app-name: 'mypokedex'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_b4da5005ddf8483e8486ea42ac91482e }}
-        package: ${{env.DOTNET_ROOT}}/myapp 
+        path: buildOutput
+    
+    # - name: Clean with dotnet
+    #   run: dotnet clean ./Pokedex.sln --configuration Release && dotnet nuget locals all --clear
+      
+    # - name: Build with dotnet
+    #   run: dotnet build --configuration Release
+    
+    # - name: Unit Test with dotnet
+    #   run: dotnet test --configuration Release
+
+    # - name: Publish with dotnet
+    #   run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+    # - name: Deploy to Azure Web App
+    #   uses: azure/webapps-deploy@v2
+    #   with:
+    #     app-name: 'mypokedex'
+    #     slot-name: 'production'
+    #     publish-profile: ${{ secrets.AzureAppService_PublishProfile_b4da5005ddf8483e8486ea42ac91482e }}
+    #     package: ${{env.DOTNET_ROOT}}/myapp 
